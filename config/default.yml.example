@@ -1,0 +1,37 @@
+# File cấu hình mẫu cho Zeid Bot
+# Copy file này thành default.yml và điền thông tin của bạn
+
+account_file: "account.json" # file chứa thông tin login
+
+# cấu hình login bằng qrcode
+login_qrcode: true # tự động chuyển sang qrcode login khi cookie không thể login
+qrcode_path: "qr.png" # ảnh qrcode
+save_cookie: true # tự động lưu lại cookie sau khi đăng nhập bằng qrcode xong
+
+# cấu hình bot
+prefix: "/"
+name_bot: "Dragon7 Bot"
+# sử dụng lệnh /id để lấy id
+# chú ý: mỗi acc chạy bot get info sẽ ra 1 id khác nhau nên nếu đổi acc chạy bot phải đổi id (do zalo lưu data ở local)
+admin_bot:
+  - "YOUR_ADMIN_ID_HERE"  # Thay bằng ID admin của bạn
+  - "ANOTHER_ADMIN_ID"    # Có thể thêm nhiều admin
+support_bot:
+  - "SUPPORT_ID_1"        # ID của support
+  - "SUPPORT_ID_2"        # Có thể thêm nhiều support
+allow_private_command: true # có cho bot nhận lệnh từ tin nhắn riêng hay không
+default_money: 0 # tiền mặc định của user khi khởi tạo database
+
+# cấu hình weather API
+weather_api:
+  provider: "openweathermap"
+  api_key: "YOUR_OPENWEATHER_API_KEY_HERE" # Đăng ký tại https://openweathermap.org/api
+  default_lang: "vi"
+  cache_duration: 300 # 5 phút cache để tránh spam API
+  units: "metric" # metric = Celsius, imperial = Fahrenheit
+
+# cấu hình của zca-js
+zca_js_config:
+  selfListen: false
+  checkUpdate: true
+  logging: true

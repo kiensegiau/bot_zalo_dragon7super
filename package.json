@@ -1,0 +1,42 @@
+{
+  "name": "zeid_bot",
+  "version": "1.0.2-beta",
+  "description": "Chatbot Zalo Node.js dựa trên ZCA-JS.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "zalo",
+    "chatbot",
+    "nodejs",
+    "zeid-bot"
+  ],
+  "author": "Jukaza208, Soulmate",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jukaza/bot_zalo_dragon7super.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jukaza/bot_zalo_dragon7super/issues"
+  },
+  "homepage": "https://github.com/jukaza/bot_zalo_dragon7super#readme",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "better-sqlite3": "^12.2.0",
+    "chalk": "^4.1.2",
+    "luxon": "^3.7.1",
+    "moment-timezone": "^0.6.0",
+    "node-schedule": "^2.1.1",
+    "semver": "^7.7.2",
+    "string-similarity": "^4.0.4",
+    "yaml": "^2.8.0",
+    "zca-js": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
