@@ -6,7 +6,7 @@ module.exports.config = {
     name: "weatheradmin",
     version: "1.0.0",
     role: 2, // Admin only
-    author: "Zeid Bot Team",
+    author: "Dragon7 Bot Team",
     description: "Quản lý hệ thống thời tiết (Admin only)",
     category: "Admin",
     usage: "weatheradmin [test|validate|stats|send] [userId]",

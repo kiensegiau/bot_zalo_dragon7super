@@ -1,4 +1,4 @@
-# File cấu hình mẫu cho Zeid Bot
+# File cấu hình mẫu cho Dragon7 Bot
 # Copy file này thành default.yml và điền thông tin của bạn
 
 account_file: "account.json" # file chứa thông tin login

@@ -5,7 +5,7 @@ module.exports.config = {
     name: "thoitiet",
     version: "1.0.0",
     role: 0,
-    author: "Zeid Bot Team",
+    author: "Dragon7 Bot Team",
     description: "Quản lý và xem thông tin thời tiết các thành phố",
     category: "Tiện ích",
     usage: "thoitiet [them|xoa|list|xem|caidat] [tên thành phố/số thứ tự]",
