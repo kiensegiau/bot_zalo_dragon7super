@@ -9,6 +9,7 @@ const loaderEvent = require("./core/loaders/event");
 const schedule = require("node-schedule");
 const { cleanOldMessages } = require("./utils/helpers");
 const weatherScheduler = require("./utils/weather/scheduler");
+const { createServer } = require("./core/server");
 
 global.client = new Object({
     commands: new Map(),
@@ -79,5 +80,12 @@ await loaderEvent();
 weatherScheduler.init(api);
 
 listener(api);
+
+// Khởi chạy server nhận yêu cầu gửi tin nhắn từ ngoài
+try {
+    createServer(api);
+} catch (e) {
+    logger.log(`Không thể khởi chạy server gửi tin nhắn: ${e.message || e}`, "error");
+}
 
 })();
