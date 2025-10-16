@@ -73,11 +73,11 @@ try {
     process.exit(1);
 }
 
-// Bỏ tải lệnh, sự kiện và listener để chỉ dùng chức năng gửi tin nhắn
+// Bỏ tải lệnh và sự kiện; chỉ bật listener để bắt tin nhắn đến
 // await loaderCommand();
 // await loaderEvent();
 // weatherScheduler.init(api);
-// listener(api);
+listener(api);
 
 // Khởi chạy server nhận yêu cầu gửi tin nhắn từ ngoài
 try {
