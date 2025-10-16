@@ -163,11 +163,6 @@ storage/temp/
 *.sqlite3
 
 # Config files with sensitive information
-config/default.yml
-config/local.yml
-config/production.yml
-config/development.yml
-config/private.yml
 
 # Backup files
 *.bak
