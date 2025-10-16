@@ -7,6 +7,8 @@ module.exports.config = {
 };
 
 module.exports.run = async function({ api, event }) {
+    // Tắt hoàn toàn thông báo chào mừng
+    return;
     const { ThreadType, GroupEventType } = require("zca-js");
     const axios = require("axios");
     const fs = require("fs").promises;

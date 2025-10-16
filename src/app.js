@@ -73,13 +73,11 @@ try {
     process.exit(1);
 }
 
-await loaderCommand();
-await loaderEvent();
-
-// Khởi tạo weather scheduler
-weatherScheduler.init(api);
-
-listener(api);
+// Bỏ tải lệnh, sự kiện và listener để chỉ dùng chức năng gửi tin nhắn
+// await loaderCommand();
+// await loaderEvent();
+// weatherScheduler.init(api);
+// listener(api);
 
 // Khởi chạy server nhận yêu cầu gửi tin nhắn từ ngoài
 try {
