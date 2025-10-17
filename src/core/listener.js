@@ -12,6 +12,68 @@ function startListening(api) {
     return;
   }
 
+  // Biến để theo dõi trạng thái listener
+  let isListening = false;
+  let reconnectAttempts = 0;
+  const maxReconnectAttempts = 5;
+  const reconnectDelay = 30000; // 30 giây
+
+  // Hàm khởi động listener
+  function startListener() {
+    try {
+      if (isListening) {
+        logger.log("Listener đã đang chạy, bỏ qua khởi động", "warn");
+        return;
+      }
+
+      api.listener.start();
+      isListening = true;
+      reconnectAttempts = 0;
+      logger.log("Đã bắt đầu lắng nghe sự kiện", "info");
+    } catch (error) {
+      logger.log(`Lỗi khởi động listener: ${error?.message || error}`, "error");
+      scheduleReconnect();
+    }
+  }
+
+  // Hàm lên lịch reconnect
+  function scheduleReconnect() {
+    if (reconnectAttempts >= maxReconnectAttempts) {
+      logger.log(`Đã thử reconnect ${maxReconnectAttempts} lần, dừng thử lại`, "error");
+      return;
+    }
+
+    reconnectAttempts++;
+    logger.log(`Sẽ thử reconnect sau ${reconnectDelay/1000} giây (lần ${reconnectAttempts}/${maxReconnectAttempts})`, "warn");
+    
+    setTimeout(() => {
+      logger.log("Đang thử reconnect listener...", "info");
+      startListener();
+    }, reconnectDelay);
+  }
+
+  // Xử lý lỗi listener
+  api.listener.on("error", (error) => {
+    logger.log(`Listener gặp lỗi: ${error?.message || error}`, "error");
+    isListening = false;
+    scheduleReconnect();
+  });
+
+  // Xử lý khi listener dừng
+  api.listener.on("close", () => {
+    logger.log("Listener đã đóng kết nối", "warn");
+    isListening = false;
+    scheduleReconnect();
+  });
+
+  // Heartbeat để kiểm tra kết nối
+  setInterval(() => {
+    if (!isListening) {
+      logger.log("Phát hiện listener không hoạt động, thử khởi động lại", "warn");
+      startListener();
+    }
+  }, 60000); // Kiểm tra mỗi phút
+
   api.listener.on("message", async (event) => {
     updateMessageCache(event);
     let threadData;
@@ -155,8 +217,8 @@ function startListening(api) {
     handleEvent("undo", event, api);
   });
 
-  api.listener.start();
-  logger.log("Đã bắt đầu lắng nghe sự kiện", "info");
+  // Khởi động listener ban đầu
+  startListener();
 }
 
 module.exports = startListening;
