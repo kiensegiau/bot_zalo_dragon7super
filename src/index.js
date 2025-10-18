@@ -24,7 +24,35 @@ const semver = require("semver");
                 startProject();
             }
         });
+
+        return child;
+    }
+
+    // Auto restart sau mỗi 2 giờ
+    function scheduleAutoRestart() {
+        const restartInterval = 2 * 60 * 60 * 1000; // 2 giờ = 2 * 60 * 60 * 1000 ms
+        
+        setInterval(() => {
+            logger.log("🔄 Đã đến 2 giờ, chuẩn bị restart bot...", "warn");
+            
+            // Tìm và kill process hiện tại
+            const { exec } = require("child_process");
+            exec("taskkill /f /im node.exe", (error) => {
+                if (error) {
+                    logger.log(`Lỗi kill process: ${error.message}`, "warn");
+                }
+                
+                // Chờ 3 giây rồi restart
+                setTimeout(() => {
+                    logger.log("🚀 Restarting bot sau 2 giờ...", "info");
+                    startProject();
+                }, 3000);
+            });
+        }, restartInterval);
+        
+        logger.log(`⏰ Đã lên lịch auto restart sau mỗi 2 giờ`, "info");
     }
 
     startProject();
+    scheduleAutoRestart();
 })();
