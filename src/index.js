@@ -28,31 +28,31 @@ const semver = require("semver");
         return child;
     }
 
+    let currentChild = null;
+
     // Auto restart sau mỗi 2 giờ
     function scheduleAutoRestart() {
-        const restartInterval = 2 * 60 * 60 * 1000; // 2 giờ = 2 * 60 * 60 * 1000 ms
+        const restartInterval = 60 * 60 * 1000; // 1 giờ = 60 * 60 * 1000 ms
         
         setInterval(() => {
-            logger.log("🔄 Đã đến 2 giờ, chuẩn bị restart bot...", "warn");
+            logger.log("🔄 Đã đến 1 giờ, chuẩn bị restart bot...", "warn");
             
-            // Tìm và kill process hiện tại
-            const { exec } = require("child_process");
-            exec("taskkill /f /im node.exe", (error) => {
-                if (error) {
-                    logger.log(`Lỗi kill process: ${error.message}`, "warn");
-                }
-                
-                // Chờ 3 giây rồi restart
-                setTimeout(() => {
-                    logger.log("🚀 Restarting bot sau 2 giờ...", "info");
-                    startProject();
-                }, 3000);
-            });
+            // Dừng bot hiện tại
+            if (currentChild && !currentChild.killed) {
+                currentChild.kill('SIGTERM');
+                logger.log("🛑 Đã dừng bot hiện tại", "info");
+            }
+            
+            // Chờ 3 giây rồi khởi động lại
+            setTimeout(() => {
+                logger.log("🚀 Restarting bot sau 1 giờ...", "info");
+                currentChild = startProject();
+            }, 3000);
         }, restartInterval);
         
-        logger.log(`⏰ Đã lên lịch auto restart sau mỗi 2 giờ`, "info");
+        logger.log(`⏰ Đã lên lịch auto restart sau mỗi 1 giờ`, "info");
     }
 
-    startProject();
+    currentChild = startProject();
     scheduleAutoRestart();
 })();

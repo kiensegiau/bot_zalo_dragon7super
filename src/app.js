@@ -86,4 +86,25 @@ try {
     logger.log(`Không thể khởi chạy server gửi tin nhắn: ${e.message || e}`, "error");
 }
 
+// Xử lý restart nội bộ
+process.on('message', (msg) => {
+    if (msg && msg.type === 'restart') {
+        logger.log("🔄 Nhận tín hiệu restart nội bộ...", "info");
+        
+        // Clear cache và reset
+        if (global.gc) {
+            global.gc();
+            logger.log("🧹 Đã clear garbage collection", "info");
+        }
+        
+        // Reset listener (nếu có method restart)
+        if (api && api.listener && api.listener.restart) {
+            api.listener.restart();
+            logger.log("🔄 Đã restart listener", "info");
+        }
+        
+        logger.log("✅ Hoàn thành reset nội bộ", "info");
+    }
+});
+
 })();
