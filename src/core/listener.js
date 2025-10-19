@@ -15,8 +15,23 @@ function startListening(api) {
   // Biến để theo dõi trạng thái listener
   let isListening = false;
   let reconnectAttempts = 0;
-  const maxReconnectAttempts = 5;
-  const reconnectDelay = 30000; // 30 giây
+  let reconnectTimeout = null;
+  let heartbeatInterval = null;
+  const maxReconnectAttempts = 10; // Tăng số lần thử
+  const reconnectDelay = 15000; // Giảm thời gian chờ xuống 15 giây
+  const heartbeatIntervalMs = 60000; // Kiểm tra mỗi 1 phút
+
+  // Hàm cleanup
+  function cleanup() {
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+      reconnectTimeout = null;
+    }
+    if (heartbeatInterval) {
+      clearInterval(heartbeatInterval);
+      heartbeatInterval = null;
+    }
+  }
 
   // Hàm khởi động listener
   function startListener() {
@@ -26,14 +41,33 @@ function startListening(api) {
         return;
       }
 
+      // Cleanup trước khi start
+      cleanup();
+
       api.listener.start();
       isListening = true;
       reconnectAttempts = 0;
       logger.log("Đã bắt đầu lắng nghe sự kiện", "info");
+
+      // Khởi động heartbeat
+      startHeartbeat();
     } catch (error) {
       logger.log(`Lỗi khởi động listener: ${error?.message || error}`, "error");
+      isListening = false;
       scheduleReconnect();
     }
+  }
+
+  // Hàm khởi động heartbeat - chỉ kiểm tra trạng thái listener
+  function startHeartbeat() {
+    heartbeatInterval = setInterval(() => {
+      if (!isListening) {
+        logger.log("Phát hiện listener không hoạt động, thử khởi động lại", "warn");
+        startListener();
+      } else {
+        logger.log("Heartbeat: Listener đang hoạt động bình thường", "debug");
+      }
+    }, heartbeatIntervalMs);
   }
 
   // Hàm lên lịch reconnect
@@ -43,13 +77,18 @@ function startListening(api) {
       return;
     }
 
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+    }
+
     reconnectAttempts++;
-    logger.log(`Sẽ thử reconnect sau ${reconnectDelay/1000} giây (lần ${reconnectAttempts}/${maxReconnectAttempts})`, "warn");
+    const delay = Math.min(reconnectDelay * Math.pow(1.5, reconnectAttempts - 1), 300000); // Exponential backoff, max 5 phút
+    logger.log(`Sẽ thử reconnect sau ${delay/1000} giây (lần ${reconnectAttempts}/${maxReconnectAttempts})`, "warn");
     
-    setTimeout(() => {
+    reconnectTimeout = setTimeout(() => {
       logger.log("Đang thử reconnect listener...", "info");
       startListener();
-    }, reconnectDelay);
+    }, delay);
   }
 
   // Xử lý lỗi listener
@@ -65,14 +104,6 @@ function startListening(api) {
     isListening = false;
     scheduleReconnect();
   });
-
-  // Heartbeat để kiểm tra kết nối
-  setInterval(() => {
-    if (!isListening) {
-      logger.log("Phát hiện listener không hoạt động, thử khởi động lại", "warn");
-      startListener();
-    }
-  }, 60000); // Kiểm tra mỗi phút
 
   api.listener.on("message", async (event) => {
     updateMessageCache(event);
@@ -215,6 +246,19 @@ function startListening(api) {
 
   api.listener.on("undo", (event) => {
     handleEvent("undo", event, api);
+  });
+
+  // Xử lý khi process thoát
+  process.on('SIGINT', () => {
+    logger.log("Đang dừng listener...", "info");
+    cleanup();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', () => {
+    logger.log("Đang dừng listener...", "info");
+    cleanup();
+    process.exit(0);
   });
 
   // Khởi động listener ban đầu
