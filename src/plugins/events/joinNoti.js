@@ -6,7 +6,12 @@ module.exports.config = {
     description: "Chào mừng thành viên mới vào nhóm."
 };
 
+// DISABLED - Chức năng thông báo thành viên mới đã bị tắt
 module.exports.run = async function({ api, event }) {
+    // Chức năng đã bị comment để chỉ giữ lại log tin nhắn
+    return;
+    
+    /* ORIGINAL CODE - Đã comment
     const { ThreadType, GroupEventType } = require("zca-js");
     const axios = require("axios");
     const fs = require("fs").promises;
@@ -99,4 +104,5 @@ module.exports.run = async function({ api, event }) {
                 try { await fs.unlink(filePath); } catch (_) {}
             }
         }
+    */
 };

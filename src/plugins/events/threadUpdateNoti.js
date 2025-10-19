@@ -23,7 +23,12 @@ async function getUserName(api, userId) {
     }
 }
 
+// DISABLED - Chức năng thông báo cập nhật nhóm đã bị tắt
 module.exports.run = async function({ api, event }) {
+    // Chức năng đã bị comment để chỉ giữ lại log tin nhắn
+    return;
+    
+    /* ORIGINAL CODE - Đã comment
     const { threadId, data, type: eventTypeNumber } = event;
     if (eventTypeNumber == 0) return;
     const actorId = data.sourceId || data.actorId || data.creatorId;
@@ -258,4 +263,5 @@ module.exports.run = async function({ api, event }) {
             }
         }
     }
+    */
 };

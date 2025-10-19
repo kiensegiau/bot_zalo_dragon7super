@@ -11,7 +11,12 @@ module.exports.config = {
     description: "Thông báo khi có thành viên rời hoặc bị xóa khỏi nhóm."
 };
 
+// DISABLED - Chức năng thông báo thành viên rời đã bị tắt
 module.exports.run = async function({ api, event }) {
+    // Chức năng đã bị comment để chỉ giữ lại log tin nhắn
+    return;
+    
+    /* ORIGINAL CODE - Đã comment
     const { threadId, data, type } = event;
 
     if (![GroupEventType.LEAVE, GroupEventType.REMOVE_MEMBER].includes(type)) return;
@@ -74,4 +79,5 @@ module.exports.run = async function({ api, event }) {
             try { await fs.unlink(filePath); } catch (_) {}
         }
     }
+    */
 };
