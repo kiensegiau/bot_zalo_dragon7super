@@ -2,6 +2,7 @@ const { spawn } = require("child_process");
 const logger = require("./utils/logger");
 const semver = require("semver");
 const schedule = require("node-schedule");
+const { exec } = require("child_process");
 
 (async () => {
     await logger.printBanner();
@@ -15,7 +16,35 @@ const schedule = require("node-schedule");
     let childProcess = null;
     let restartJob = null;
 
-    function startProject() {
+    // Function để đóng port 3380 trước khi khởi động
+    function killPort3380() {
+        return new Promise((resolve) => {
+            exec('netstat -ano | findstr :3380', (error, stdout) => {
+                if (stdout) {
+                    const lines = stdout.split('\n');
+                    for (const line of lines) {
+                        if (line.includes(':3380')) {
+                            const parts = line.trim().split(/\s+/);
+                            const pid = parts[parts.length - 1];
+                            if (pid && pid !== '0') {
+                                exec(`taskkill /PID ${pid} /F`, () => {
+                                    logger.log(`Đã đóng process sử dụng port 3380 (PID: ${pid})`, "info");
+                                    resolve();
+                                });
+                                return;
+                            }
+                        }
+                    }
+                }
+                resolve();
+            });
+        });
+    }
+
+    async function startProject() {
+        // Đóng port 3380 trước khi khởi động
+        await killPort3380();
+        
         childProcess = spawn("node", ["src/app.js"], {
             cwd: process.cwd(),
             stdio: "inherit",
@@ -39,18 +68,21 @@ const schedule = require("node-schedule");
             restartJob.cancel();
         }
 
-        // Tạo job mới restart sau 5 giây (để test)
-        restartJob = schedule.scheduleJob('*/5 * * * * *', function() {
-            logger.log(`Tự động restart bot sau 5 giây...`, "info");
+        // Tạo job mới restart sau 10 giây (để test)
+        restartJob = schedule.scheduleJob('*/10 * * * * *', async function() {
+            logger.log(`Tự động restart bot sau 10 giây...`, "info");
             if (childProcess) {
                 childProcess.kill('SIGTERM');
+                // Đóng port 3380 trước khi restart
+                await killPort3380();
+                // Tăng thời gian delay để đảm bảo server cũ đóng hoàn toàn
                 setTimeout(() => {
                     startProject();
-                }, 2000);
+                }, 5000);
             }
         });
 
-        logger.log(`Đã lên lịch restart bot sau mỗi 5 giây (test mode)`, "info");
+        logger.log(`Đã lên lịch restart bot sau mỗi 10 giây (test mode)`, "info");
     }
 
     // Xử lý tín hiệu dừng
