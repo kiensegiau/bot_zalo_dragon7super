@@ -32,8 +32,16 @@ module.exports.run = async function({ api, event }) {
 
     // Xử lý lệnh check gmail cho group được phép
     const allowedGroupId = process.env.ALLOWED_GROUP_ID || (global.config && global.config.allowed_group_id) || "1096161385895708787";
+    
+    console.log(chalk.cyan(`[DEBUG] ThreadId: ${threadId}, AllowedId: ${allowedGroupId}, Match: ${String(threadId) === String(allowedGroupId)}`));
+    console.log(chalk.cyan(`[DEBUG] Content type: ${typeof content}, Content: ${content}`));
+    console.log(chalk.cyan(`[DEBUG] Sender: ${senderName}, Time: ${time}`));
+    
     if (String(threadId) === String(allowedGroupId) && typeof content === "string") {
         const text = content.trim();
+        console.log(chalk.cyan(`[DEBUG] Text after trim: "${text}"`));
+        console.log(chalk.cyan(`[DEBUG] Starts with 'check': ${text.toLowerCase().startsWith("check ")}`));
+        
         if (text.toLowerCase().startsWith("check ")) {
             console.log(chalk.blue(`[CHECK GMAIL] ${senderName}: ${text}`));
             
@@ -99,7 +107,10 @@ module.exports.run = async function({ api, event }) {
                         try {
                             const supportLink = 'https://zalo.me/g/qkbbsy233';
                             let msgToSend;
-                            if (response.ok) {
+                            
+                            console.log(chalk.blue(`[DEBUG] response.ok: ${response.ok}, status: ${response.status}`));
+                            
+                            if (response.ok && response.status === 200) {
                                 msgToSend = [
                                     '✅ Tạo tài khoản thành công',
                                     `• Email: ${email}`,
@@ -107,6 +118,7 @@ module.exports.run = async function({ api, event }) {
                                     `🔗 Nhóm hỗ trợ: ${supportLink}`,
                                     `🔗 Link khóa học: https://khoahocshares.com`
                                 ].join('\n');
+                                console.log(chalk.blue(`[DEBUG] Tạo tin nhắn thành công với mật khẩu: ${generatedPassword}`));
                             } else {
                                 let detail = textResp || '';
                                 if (detail.length > 300) detail = detail.slice(0, 300) + '...';
@@ -115,13 +127,17 @@ module.exports.run = async function({ api, event }) {
                                     detail,
                                     `🔗 Nhóm hỗ trợ: ${supportLink}`
                                 ].filter(Boolean).join('\n');
+                                console.log(chalk.blue(`[DEBUG] Tạo tin nhắn thất bại`));
                             }
+
+                            console.log(chalk.blue(`[DEBUG] Tin nhắn sẽ gửi: ${msgToSend.substring(0, 100)}...`));
 
                             try { 
                                 await api.sendMessage({ msg: msgToSend }, threadId, preferredType);
                                 console.log(chalk.green(`[SENT] Thông báo kết quả tạo tài khoản`));
                             }
-                            catch (_) { 
+                            catch (e3) { 
+                                console.log(chalk.yellow(`[FALLBACK] Gửi thông báo kết quả lỗi: ${e3?.message || e3}`));
                                 await api.sendMessage({ msg: msgToSend }, threadId, altType);
                                 console.log(chalk.green(`[SENT] Thông báo kết quả tạo tài khoản (fallback)`));
                             }
@@ -136,6 +152,8 @@ module.exports.run = async function({ api, event }) {
                 console.log(chalk.red(`[ERROR] Lỗi gửi phản hồi check gmail: ${err?.message || err}`));
             }
         }
+    } else {
+        console.log(chalk.yellow(`[DEBUG] Tin nhắn không được xử lý - ThreadId: ${threadId}, Content type: ${typeof content}`));
     }
 
     // Log tin nhắn bình thường
