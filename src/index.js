@@ -68,9 +68,9 @@ const { exec } = require("child_process");
             restartJob.cancel();
         }
 
-        // Tạo job mới restart sau 2 giờ
-        restartJob = schedule.scheduleJob('0 */2 * * *', async function() {
-            logger.log(`Tự động restart bot sau 2 giờ...`, "info");
+        // Tạo job mới restart sau 1 giờ
+        restartJob = schedule.scheduleJob('0 * * * *', async function() {
+            logger.log(`Tự động restart bot sau 1 giờ...`, "info");
             if (childProcess) {
                 childProcess.kill('SIGTERM');
                 // Đóng port 3380 trước khi restart
@@ -82,7 +82,7 @@ const { exec } = require("child_process");
             }
         });
 
-        logger.log(`Đã lên lịch restart bot sau mỗi 2 giờ`, "info");
+        logger.log(`Đã lên lịch restart bot sau mỗi 1 giờ`, "info");
     }
 
     // Xử lý tín hiệu dừng
