@@ -6,7 +6,8 @@ function createServer(api) {
     throw new Error("Thiếu cấu hình server.host/port trong config/default.yml");
   }
 
-  const allowedGroupId = process.env.ALLOWED_GROUP_ID || (global.config && global.config.allowed_group_id) || "1096161385895708787";
+  // Cấu hình Group ID được chuyển vào đọc trực tiếp từ file ở mỗi request
+
 
   const server = http.createServer(async (req, res) => {
     // CORS đơn giản
@@ -46,8 +47,20 @@ function createServer(api) {
       const threadType = ThreadType.Group;
       const msgPayload = typeof message === "string" ? { msg: message } : message;
 
+      // Đọc danh sách Group ID trực tiếp từ file
+      let allowedGroups = [];
+      try {
+        const fs = require("fs");
+        const path = require("path");
+        const filePath = path.join(__dirname, "../../config/allowed_groups.txt");
+        const fileContent = fs.readFileSync(filePath, "utf8");
+        allowedGroups = fileContent.split(/\r?\n/).map(id => id.trim()).filter(id => id.length > 0);
+      } catch (err) {
+        allowedGroups = ["1096161385895708787"];
+      }
+
       // Chỉ cho phép gửi tới đúng group được cấu hình
-      if (String(threadId) !== String(allowedGroupId)) {
+      if (!allowedGroups.includes(String(threadId))) {
         res.statusCode = 403;
         return res.end(JSON.stringify({ error: "Forbidden: threadId not allowed" }));
       }

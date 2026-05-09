@@ -119,9 +119,19 @@ function startListening(api) {
     const { data } = event;
     const content = data?.content;
 
-    // Cho phép duy nhất 1 group
-    const allowedGroupId = process.env.ALLOWED_GROUP_ID || (global.config && global.config.allowed_group_id) || "1096161385895708787";
-    if (String(event.threadId) !== String(allowedGroupId)) return;
+    // Đọc danh sách group từ file config/allowed_groups.txt
+    let allowedGroups = [];
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const filePath = path.join(__dirname, "../../config/allowed_groups.txt");
+      const fileContent = fs.readFileSync(filePath, "utf8");
+      allowedGroups = fileContent.split(/\r?\n/).map(id => id.trim()).filter(id => id.length > 0);
+    } catch (err) {
+      // Mặc định nếu không đọc được file
+      allowedGroups = ["1096161385895708787"];
+    }
+    if (!allowedGroups.includes(String(event.threadId))) return;
 
     // Log đơn giản mỗi khi có tin nhắn dạng text đến
     if (typeof content === "string") {
