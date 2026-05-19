@@ -204,3 +204,4 @@ assets/cache/
 *.tmp.png
 *.tmp.gif
 *.tmp.webp
+!lib/zca-js/dist/

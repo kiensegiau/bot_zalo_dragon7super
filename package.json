@@ -34,7 +34,7 @@
     "semver": "^7.7.2",
     "string-similarity": "^4.0.4",
     "yaml": "^2.8.0",
-    "zca-js": "latest"
+    "zca-js": "file:./lib/zca-js"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
