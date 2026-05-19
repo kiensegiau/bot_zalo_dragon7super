@@ -288,9 +288,18 @@ export async function request(ctx: ContextBase, url: string, options?: RequestIn
     };
 
     const response = await ctx.options.polyfill(url, _options);
-    const setCookieRaw = response.headers.get("set-cookie");
-    if (setCookieRaw && !raw) {
-        const splitCookies = setCookieRaw.split(", ");
+    let splitCookies: string[] = [];
+    if (typeof response.headers.getSetCookie === "function") {
+        splitCookies = response.headers.getSetCookie();
+    } else {
+        const setCookieRaw = response.headers.get("set-cookie");
+        if (setCookieRaw) {
+            // fallback (may still have comma issues, but better than nothing if getSetCookie doesn't exist)
+            splitCookies = setCookieRaw.split(", ");
+        }
+    }
+
+    if (splitCookies.length > 0 && !raw) {
         for (const cookie of splitCookies) {
             const parsed = toughCookie.Cookie.parse(cookie);
             try {
@@ -303,8 +312,12 @@ export async function request(ctx: ContextBase, url: string, options?: RequestIn
     if (redirectURL) {
         const redirectOptions = { ...options };
         redirectOptions.method = "GET";
-        // @ts-ignore
-        if (!raw) redirectOptions.headers["Referer"] = "https://id.zalo.me/";
+        if (redirectOptions.headers) {
+            const headers = redirectOptions.headers as Record<string, string>;
+            delete headers["Cookie"];
+            delete headers["cookie"];
+            if (!raw) headers["Referer"] = "https://id.zalo.me/";
+        }
         return await request(ctx, redirectURL, redirectOptions);
     }
 

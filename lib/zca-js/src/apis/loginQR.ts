@@ -503,6 +503,8 @@ export async function loginQR(
             }
 
             const userInfo = await getUserInfo(ctx);
+            console.log("Cookies after checkSession:", await ctx.cookie?.getCookieString("https://chat.zalo.me"));
+            console.log("UserInfo response:", userInfo);
             if (!userInfo || !userInfo.data) return reject(new ZaloApiError("Can't get account info"));
             if (!userInfo.data.logged) return reject(new ZaloApiError("Can't login"));
 
