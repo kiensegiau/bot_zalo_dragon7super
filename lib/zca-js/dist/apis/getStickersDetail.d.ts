@@ -1,0 +1,24 @@
+export type StickerDetail = {
+    id: number;
+    cateId: number;
+    type: number;
+    text: string;
+    uri: string;
+    fkey: number;
+    status: number;
+    stickerUrl: string;
+    stickerSpriteUrl: string;
+    stickerWebpUrl: any;
+    totalFrames: number;
+    duration: number;
+    effectId: number;
+    checksum: string;
+    ext: number;
+    source: number;
+    fss: any;
+    fssInfo: any;
+    version: number;
+    extInfo: any;
+};
+export type StickerDetailResponse = StickerDetail[];
+export declare const getStickersDetailFactory: (ctx: import("../context.js").ContextBase, api: import("../zalo.js").API) => (stickerIds: number | number[]) => Promise<StickerDetailResponse>;
