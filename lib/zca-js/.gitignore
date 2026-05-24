@@ -134,3 +134,5 @@ cookies.json
 credentials.json
 /.dev
 test/**/*.test.*
+
+!dist/

@@ -65,7 +65,7 @@ function createServer(api) {
         return res.end(JSON.stringify({ error: "Forbidden: threadId not allowed" }));
       }
 
-      const result = await api.sendMessage(msgPayload, String(allowedGroupId), threadType);
+      const result = await api.sendMessage(msgPayload, String(threadId), threadType);
 
       res.setHeader("Content-Type", "application/json");
       res.end(JSON.stringify({ ok: true, result }));
